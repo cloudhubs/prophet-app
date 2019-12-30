@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os/exec"
 	"strings"
@@ -22,17 +23,17 @@ var tmpServerPath = "~/tmp/"
 var githubUrl = "https://github.com/"
 
 //ToDo: param
-func GitServer(w http.ResponseWriter, r *http.Request) {
+func getProphetResponse(w http.ResponseWriter, r *http.Request, request AppRequest) {
 	curr = curr + 1
 	currentTime = time.Now()
 	diff := currentTime.Sub(reqDate)
 	if diff.Hours() < 24 {
 		if curr < MaxRequests {
 			//extract body
-			var req prophetRequest
-			json.NewDecoder(r.Body).Decode(&req)
+			//var req prophetRequest
+			//json.NewDecoder(r.Body).Decode(&req)
 			// get github URL from body
-			var projectUrl = req.url
+			var projectUrl = request.Url
 			// download github repository
 			cloneRepo(githubUrl + projectUrl)
 			//extract the absolute path
@@ -42,27 +43,30 @@ func GitServer(w http.ResponseWriter, r *http.Request) {
 			defer r.Body.Close()
 			var p ProphetResponse
 			json.NewDecoder(r.Body).Decode(&p)
-			log(w, "Sending request")
+			//logger(w, "Sending request")
 			// prophet response to json
 			js, err := json.Marshal(p)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				log.Println(err.Error())
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(js)
 		} else {
 			//request exhausted
-			log(w, "Resources exhausted, next available will be tomorrow")
+			var errText string = "Resources exhausted, next available will be tomorrow"
+			logger(w, errText)
+			http.Error(w, errText, http.StatusBadRequest)
 		}
 	} else {
 		curr = 0
 		reqDate = time.Now()
-		log(w, "Sending request")
+		logger(w, "Sending request")
 	}
 }
 
-func log(w http.ResponseWriter, str string) {
+func logger(w http.ResponseWriter, str string) {
 	err, _ := p(w, str + " %d, %s, %s", curr, reqDate.Format(format), currentTime.Format(format))
 	if err == 0 {
 		p(w, "Error.")
@@ -78,19 +82,28 @@ func cloneRepo(repo string){
 }
 
 func postProphet(url string) *http.Response {
-	response , err := http.Post(prophetUrl,"application/json", bytes.NewBuffer(newRequest(url)) )
+	buffer := bytes.NewBuffer(newRequest(url))
+	response , err := http.Post(prophetUrl,"application/json", buffer)
 	if err != nil {
 		panic(err)
 	}
 	return response
 }
 
+type ProphetRequest struct {
+	Url string `json:"url"`
+}
+
+
 func newRequest(url string) []byte {
-	r := prophetRequest{url: url}
+	var r ProphetRequest
+	r.Url = url
+	//r := AppRequest{Url: Url}
 	requestBody, err := json.Marshal(r)
 	if err != nil {
 
 	}
+	fmt.Println(string(requestBody))
 	return requestBody
 }
 
@@ -102,26 +115,26 @@ func getRepoName(githubUrl string) string{
 
 // model
 
-type prophetRequest struct {
-	url string
-}
+//type prophetRequest struct {
+//	Url string
+//}
 
 type ProphetResponse struct {
-	communication Communication
-	contextMap []string
+	Communication Communication
+	ContextMap []string
 }
 
 type Communication struct {
-	edges []Edge
-	nodes []Node
+	Edges []Edge
+	Nodes []Node
 }
 
 type Edge struct {
-	idA string
-	idB string
+	IdA string
+	IdB string
 }
 
 type Node struct {
-	id string
+	Id string
 }
 

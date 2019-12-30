@@ -8,9 +8,9 @@ import (
 
 
 //func TestMainEndpoint(t *testing.T){
-//	//url := "/cloudhubs/tms"
+//	//Url := "/cloudhubs/tms"
 //
-//	//bytes.NewBuffer(newRequest(url) )
+//	//bytes.NewBuffer(newRequest(Url) )
 //	resp, err := http.Post("http://127.0.0.1:8080","json", nil )
 //	if err != nil {
 //		panic(err)
