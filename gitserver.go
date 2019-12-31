@@ -38,7 +38,14 @@ func getProphetResponse(w http.ResponseWriter, r *http.Request, request AppReque
 			cloneRepo(githubUrl + projectUrl)
 			//extract the absolute path
 			var absolutePath = tmpServerPath + getRepoName(projectUrl)
-			// post prophet
+
+			communicationChan := make(chan Communication)
+			contextMapChan := make(chan ContextMap)
+
+			go postProphetCommunication(communicationChan)
+			go postProphetContextMap(contextMapChan)
+
+			// post prophet for communication
 			var r *http.Response = postProphet(absolutePath)
 			defer r.Body.Close()
 			var p ProphetResponse
@@ -51,6 +58,11 @@ func getProphetResponse(w http.ResponseWriter, r *http.Request, request AppReque
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
+
+
+			//post prophet for context map
+
+			//combine
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(js)
 		} else {
@@ -118,6 +130,19 @@ func getRepoName(githubUrl string) string{
 //type prophetRequest struct {
 //	Url string
 //}
+type ContextMapChanStruct struct {
+	PathToRepository string
+	ContextMap ContextMap
+}
+
+type ContextMap struct {
+
+}
+
+type CommunicationChanStruct struct {
+
+}
+
 
 type ProphetResponse struct {
 	Communication Communication
