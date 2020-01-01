@@ -18,9 +18,12 @@ var reqDate = time.Now()
 var currentTime = time.Now()
 var format = "2006.01.02 15:04:05"
 var p = fmt.Fprintf
-var prophetUrl = "http://127.0.0.1:8081/analyze"
+var prophetUrl = "http://127.0.0.1:8081/"
+var communicationInterface = "communication"
+var contextMapInterface = "contextMap"
 var tmpServerPath = "~/tmp/"
 var githubUrl = "https://github.com/"
+
 
 //ToDo: param
 func getProphetResponse(w http.ResponseWriter, r *http.Request, request AppRequest) {
@@ -29,29 +32,30 @@ func getProphetResponse(w http.ResponseWriter, r *http.Request, request AppReque
 	diff := currentTime.Sub(reqDate)
 	if diff.Hours() < 24 {
 		if curr < MaxRequests {
-			//extract body
-			//var req prophetRequest
-			//json.NewDecoder(r.Body).Decode(&req)
-			// get github URL from body
 			var projectUrl = request.Url
-			// download github repository
 			cloneRepo(githubUrl + projectUrl)
-			//extract the absolute path
+
+			// chan init
+			communicationChan := make(chan CommunicationChan)
+			contextMapChan := make(chan ContextMapChan)
+
 			var absolutePath = tmpServerPath + getRepoName(projectUrl)
 
-			communicationChan := make(chan Communication)
-			contextMapChan := make(chan ContextMap)
-
+			// routines
 			go postProphetCommunication(communicationChan)
 			go postProphetContextMap(contextMapChan)
+			// send objects to channel
+			var ccm = ContextMapChan{
+				PathToRepository: absolutePath,
+				ContextMap:       ContextMap{},
+			}
+			contextMapChan <- ccm
 
-			// post prophet for communication
-			var r *http.Response = postProphet(absolutePath)
-			defer r.Body.Close()
-			var p ProphetResponse
-			json.NewDecoder(r.Body).Decode(&p)
-			//logger(w, "Sending request")
-			// prophet response to json
+			//var r *http.Response = postProphet(absolutePath)
+			//defer r.Body.Close()
+			//var p ProphetResponse
+			//json.NewDecoder(r.Body).Decode(&p)
+
 			js, err := json.Marshal(p)
 			if err != nil {
 				log.Println(err.Error())
@@ -78,6 +82,35 @@ func getProphetResponse(w http.ResponseWriter, r *http.Request, request AppReque
 	}
 }
 
+func postProphetContextMap(c chan ContextMapChan) {
+	obj := <- c
+	var r = postProphet(obj.PathToRepository, contextMapInterface)
+	defer r.Body.Close()
+	var p ContextMap
+	json.NewDecoder(r.Body).Decode(&p)
+	obj.ContextMap = p
+	c <- obj
+}
+
+func postProphetCommunication(c chan CommunicationChan) {
+	obj := <- c
+	var r *http.Response = postProphet(obj.PathToRepository, communicationInterface)
+	defer r.Body.Close()
+	var p Communication
+	json.NewDecoder(r.Body).Decode(&p)
+	obj.Communication = p
+	c <- obj
+}
+
+func postProphet(url string, pathInterface string) *http.Response {
+	buffer := bytes.NewBuffer(newRequest(url))
+	response , err := http.Post(prophetUrl + pathInterface,"application/json", buffer)
+	if err != nil {
+		panic(err)
+	}
+	return response
+}
+
 func logger(w http.ResponseWriter, str string) {
 	err, _ := p(w, str + " %d, %s, %s", curr, reqDate.Format(format), currentTime.Format(format))
 	if err == 0 {
@@ -93,19 +126,11 @@ func cloneRepo(repo string){
 	}
 }
 
-func postProphet(url string) *http.Response {
-	buffer := bytes.NewBuffer(newRequest(url))
-	response , err := http.Post(prophetUrl,"application/json", buffer)
-	if err != nil {
-		panic(err)
-	}
-	return response
-}
+
 
 type ProphetRequest struct {
 	Url string `json:"url"`
 }
-
 
 func newRequest(url string) []byte {
 	var r ProphetRequest
@@ -124,25 +149,20 @@ func getRepoName(githubUrl string) string{
 	return s[len(s)-1]
 }
 
-
 // model
-
-//type prophetRequest struct {
-//	Url string
-//}
-type ContextMapChanStruct struct {
+type ContextMapChan struct {
 	PathToRepository string
 	ContextMap ContextMap
 }
 
+type CommunicationChan struct {
+	PathToRepository string
+	Communication Communication
+}
+
 type ContextMap struct {
-
+	MarkdownStrings []string
 }
-
-type CommunicationChanStruct struct {
-
-}
-
 
 type ProphetResponse struct {
 	Communication Communication
