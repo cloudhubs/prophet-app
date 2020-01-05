@@ -5,8 +5,6 @@ import (
 )
 
 
-
-
 //func TestMainEndpoint(t *testing.T){
 //	//Url := "/cloudhubs/tms"
 //

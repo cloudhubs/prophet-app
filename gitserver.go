@@ -20,10 +20,9 @@ var format = "2006.01.02 15:04:05"
 var p = fmt.Fprintf
 var prophetUrl = "http://127.0.0.1:8081/"
 var communicationInterface = "communication"
-var contextMapInterface = "contextMap"
+var contextMapInterface = "contextmap"
 var tmpServerPath = "~/tmp/"
 var githubUrl = "https://github.com/"
-
 
 //ToDo: param
 func getProphetResponse(w http.ResponseWriter, r *http.Request, request AppRequest) {
@@ -44,6 +43,7 @@ func getProphetResponse(w http.ResponseWriter, r *http.Request, request AppReque
 			// routines
 			go postProphetCommunication(communicationChan)
 			go postProphetContextMap(contextMapChan)
+
 			// send objects to channel
 			var ccm = ContextMapChan{
 				PathToRepository: absolutePath,
@@ -51,12 +51,24 @@ func getProphetResponse(w http.ResponseWriter, r *http.Request, request AppReque
 			}
 			contextMapChan <- ccm
 
+			var cmc = CommunicationChan{
+				PathToRepository: absolutePath,
+				Communication:    Communication{},
+			}
+
+			communicationChan <- cmc
+
+			ccm, cmc = <-contextMapChan, <-communicationChan
+
 			//var r *http.Response = postProphet(absolutePath)
 			//defer r.Body.Close()
 			//var p ProphetResponse
 			//json.NewDecoder(r.Body).Decode(&p)
-
-			js, err := json.Marshal(p)
+			pr := ProphetResponse{
+				Communication: cmc.Communication,
+				ContextMap:    ccm.ContextMap,
+			}
+			js, err := json.Marshal(pr)
 			if err != nil {
 				log.Println(err.Error())
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -126,8 +138,6 @@ func cloneRepo(repo string){
 	}
 }
 
-
-
 type ProphetRequest struct {
 	Url string `json:"url"`
 }
@@ -149,10 +159,10 @@ func getRepoName(githubUrl string) string{
 	return s[len(s)-1]
 }
 
-// model
+// channels
 type ContextMapChan struct {
-	PathToRepository string
-	ContextMap ContextMap
+	PathToRepository string `json:"pathToRepository"`
+	ContextMap ContextMap `json:"contextMap"`
 }
 
 type CommunicationChan struct {
@@ -160,13 +170,10 @@ type CommunicationChan struct {
 	Communication Communication
 }
 
+// model
+
 type ContextMap struct {
 	MarkdownStrings []string
-}
-
-type ProphetResponse struct {
-	Communication Communication
-	ContextMap []string
 }
 
 type Communication struct {
@@ -175,11 +182,21 @@ type Communication struct {
 }
 
 type Edge struct {
-	IdA string
-	IdB string
+	From string
+	To string
 }
 
 type Node struct {
 	Id string
+	Label string
 }
+
+type ProphetResponse struct {
+	Communication Communication
+	ContextMap ContextMap
+}
+
+
+
+
 
