@@ -21,7 +21,7 @@ var p = fmt.Fprintf
 var prophetUrl = "http://127.0.0.1:8081/"
 var communicationInterface = "communication"
 var contextMapInterface = "contextmap"
-var tmpServerPath = "~/tmp/"
+var tmpServerPath = "/Users/svacina/tmp/"
 var githubUrl = "https://github.com/"
 
 //ToDo: param
@@ -173,27 +173,27 @@ type CommunicationChan struct {
 // model
 
 type ContextMap struct {
-	MarkdownStrings []string
+	MarkdownStrings []string `json:"markdownStrings"`
 }
 
 type Communication struct {
-	Edges []Edge
-	Nodes []Node
+	Edges []Edge `json:"edges"`
+	Nodes []Node `json:"nodes"`
 }
 
 type Edge struct {
-	From string
-	To string
+	From string `json:"from"`
+	To string `json:"to"`
 }
 
 type Node struct {
-	Id string
-	Label string
+	Id string `json:"id"`
+	Label string `json:"label"`
 }
 
 type ProphetResponse struct {
-	Communication Communication
-	ContextMap ContextMap
+	Communication Communication `json:"communication"`
+	ContextMap ContextMap `json:"contextMap"`
 }
 
 
