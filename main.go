@@ -34,6 +34,10 @@ func analyzeGit(w http.ResponseWriter, r *http.Request) {
 	//fmt.Fprintf(w, "AppRequest: %+v", p)
 }
 
+func getCurrentRequests(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", analyzeGit)

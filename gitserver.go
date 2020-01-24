@@ -24,6 +24,26 @@ var contextMapInterface = "contextmap"
 var tmpServerPath = "/Users/svacina/tmp/"
 var githubUrl = "https://github.com/"
 
+type CurrentRequest struct {
+	Value int `json:"value"`
+}
+
+func getCurrentRequestValue(w http.ResponseWriter, r *http.Request) {
+	cr := CurrentRequest{
+		Value: curr,
+	}
+	js, err := json.Marshal(cr)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+}
+
+
+
 //ToDo: param
 func getProphetResponse(w http.ResponseWriter, r *http.Request, request AppRequest) {
 	curr = curr + 1
