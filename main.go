@@ -1,8 +1,3 @@
-//func main() {
-//    http.HandleFunc("/", GitServer)
-//    http.ListenAndServe(":8080", nil)
-//}
-
 package main
 
 import (
@@ -11,13 +6,10 @@ import (
 	"net/http"
 )
 
-type AppRequest struct {
-	Url string
-}
+
 
 func analyzeGit(w http.ResponseWriter, r *http.Request) {
-	var p AppRequest
-
+	var p ProphetWebRequest
 	err := decodeJSONBody(w, r, &p)
 	if err != nil {
 		var mr *malformedRequest
@@ -29,13 +21,9 @@ func analyzeGit(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	//analyze
-	getProphetResponse(w,r,p)
-	//fmt.Fprintf(w, "AppRequest: %+v", p)
-}
-
-func getCurrentRequests(w http.ResponseWriter, r *http.Request) {
-
+	js := getProphetResponse(w,r,p)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
 }
 
 func main() {
