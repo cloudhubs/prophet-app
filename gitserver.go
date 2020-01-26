@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+	"os"
 )
 
 var MaxRequests = 5
@@ -49,6 +50,16 @@ func cloneRepo(repo string){
 	}
 }
 
+
+//ToDo ResponseWriter
+func deleteRepo(repo string){
+	if repo != "/" {
+		os.RemoveAll(tmpServerPath + repo)
+	}
+
+
+}
+
 func postProphetAPI(buffer *bytes.Buffer) *http.Response {
 	response , err := http.Post(prophetAPIString,"application/json", buffer)
 	if err != nil {
@@ -75,10 +86,13 @@ func marshalProphetAppData(p ProphetAppData) []byte {
 func callProphet(request ProphetWebRequest) []byte{
 	var projectUrl = request.Url
 	cloneRepo(githubUrl + projectUrl)
-	var absolutePath = tmpServerPath + getRepoName(projectUrl)
+	repoName := getRepoName(projectUrl)
+	var absolutePath = tmpServerPath + repoName
 	buffer := bytes.NewBuffer(createProphetRequest(absolutePath))
 	response := postProphetAPI(buffer)
 	prophetAppData := getProphetAppData(response)
+	//we have the data and we can delete
+	deleteRepo(repoName)
 	return marshalProphetAppData(prophetAppData)
 }
 
