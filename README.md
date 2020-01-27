@@ -9,7 +9,8 @@ brew install go
 
 ## Run the main app
 ```go
-go run main.go gitserver.go model.go helpers.go
+ go get
+ go run *.go
 ```
 
 ### Test it

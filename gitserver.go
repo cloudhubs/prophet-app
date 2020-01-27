@@ -23,7 +23,6 @@ var tmpServerPath = "/Users/svacina/tmp/"
 var githubUrl = "https://github.com/"
 
 
-
 func getRepoName(githubUrl string) string{
 	var s = strings.Split(githubUrl, "/")
 	return s[len(s)-1]

@@ -39,7 +39,7 @@ func createProphetAppData(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
-func main() {
+func main2() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/app", createProphetAppData)
 	log.Println("Starting server on :8081...")

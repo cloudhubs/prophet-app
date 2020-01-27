@@ -1,4 +1,4 @@
-package main
+package test
 
 import (
 	"testing"
@@ -24,6 +24,6 @@ import (
 
 
 func TestCloneRepo(t *testing.T){
-	cloneRepo("https://github.com/cloudhubs/prophet")
+	//cloneRepo("https://github.com/cloudhubs/prophet")
 }
 
