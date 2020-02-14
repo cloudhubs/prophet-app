@@ -11,14 +11,14 @@ import (
 	"os"
 )
 
-var MaxRequests = 5
+var MaxRequests = 500
 
 var curr = 0
 var reqDate = time.Now()
 var currentTime = time.Now()
 var format = "2006.01.02 15:04:05"
 var p = fmt.Fprintf
-var prophetAPIString = "http://127.0.0.1:8081/app"
+var prophetAPIString = "http://127.0.0.1:8081/multirepoapp"
 var tmpServerPath = "/Users/svacina/tmp/"
 var githubUrl = "https://github.com/"
 
@@ -29,10 +29,18 @@ func getRepoName(githubUrl string) string{
 }
 
 //ToDo ResponseWriter
-func createProphetRequest(url string) []byte {
-	var r ProphetAppRequest
-	r.Path = url
-	requestBody, err := json.Marshal(r)
+func createProphetRequest(arr []string, monoliths []bool) []byte {
+	var reqs []ProphetAppRequest
+	for i:= 0 ; i < len(arr); i++ {
+		var r ProphetAppRequest
+		r.Path = arr[i]
+		r.IsMonolith = monoliths[i]
+		reqs = append(reqs, r)
+	}
+	var multi ProphetAppMultiRepoRequest
+	multi.Repositories = reqs
+	multi.SystemName = "default"
+	requestBody, err := json.Marshal(multi)
 	if err != nil {
 		//ToDo send error
 	}
@@ -82,16 +90,32 @@ func marshalProphetAppData(p ProphetAppData) []byte {
 	return js
 }
 
-func callProphet(request ProphetWebRequest) []byte{
-	var projectUrl = request.Url
-	cloneRepo(githubUrl + projectUrl)
-	repoName := getRepoName(projectUrl)
-	var absolutePath = tmpServerPath + repoName
-	buffer := bytes.NewBuffer(createProphetRequest(absolutePath))
+func callProphet(request ProphetWebRequest) []byte {
+	//init array
+	var arr []string
+	var monoliths []bool
+	for i := 0; i < len(request.Repositories); i++ {
+		var projectUrl = request.Repositories[i].Organization + "/" + request.Repositories[i].Repository;
+		cloneRepo(githubUrl + projectUrl)
+		repoName := getRepoName(projectUrl)
+		var absolutePath = tmpServerPath + repoName
+		arr = append(arr, repoName)
+		arr[i] = absolutePath //put absolute path to an array
+		monoliths = append(monoliths, request.Repositories[i].IsMonolith)
+	}
+	buffer := bytes.NewBuffer(createProphetRequest(arr, monoliths))
+	//var projectUrl = request.Url
+	//cloneRepo(githubUrl + projectUrl)
+	//repoName := getRepoName(projectUrl)
+	//var absolutePath = tmpServerPath + repoName
+	//buffer := bytes.NewBuffer(createProphetRequest(absolutePath))
 	response := postProphetAPI(buffer)
 	prophetAppData := getProphetAppData(response)
 	//we have the data and we can delete
-	deleteRepo(repoName)
+	//for i := 0; i < len(arr); i++ {
+	//	repoName := getRepoName(arr[i])
+	//	deleteRepo(repoName)
+	//}
 	return marshalProphetAppData(prophetAppData)
 }
 

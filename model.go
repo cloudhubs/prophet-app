@@ -1,7 +1,14 @@
 package main
 
 type ProphetWebRequest struct {
-	Url string `json:"url"`
+	//Url string `json:"url"`
+	Repositories []GitRepository `json:"repositories"`
+}
+
+type GitRepository struct {
+	Organization string `json:"organization"`
+	Repository string `json:"repository"`
+	IsMonolith bool `json:"isMonolith"`
 }
 
 type ProphetAppRequest struct {
@@ -11,6 +18,11 @@ type ProphetAppRequest struct {
 	IsMonolith bool `json:"isMonolith"`
 	All bool `json:"all"`
 	Communication bool `json:"communication"`
+}
+
+type ProphetAppMultiRepoRequest struct {
+	Repositories []ProphetAppRequest `json:"repositories"`
+	SystemName string `json:"systemName"` ;
 }
 
 type ProphetAppData struct {
