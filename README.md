@@ -5,15 +5,20 @@
 brew install go
 ```
 
-# Run
+# Build
 
 ## Run the main app
 ```go
- go get
- go run *.go
+go build
 ```
 
-### Test it
+# Run
+
+```go
+./main
+```
+
+### Endpoint
 
 Make a post request with data containing project name after the slash in `github.com`, e.g. `github.com/cloudhubs/tms`,
 so `cloudhubs/tms` is what we are interested in.
@@ -25,9 +30,4 @@ curl --request POST \
   --data '{
     "url":"cloudhubs/tms"
 }'
-```
-
-## Run the fake Prophet
-```go
-go run prophetserver.go model.go
 ```
