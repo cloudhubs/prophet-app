@@ -1,7 +1,6 @@
 package main
 
 type ProphetWebRequest struct {
-	//Url string `json:"url"`
 	Repositories []GitRepository `json:"repositories"`
 }
 

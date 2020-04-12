@@ -5,29 +5,67 @@
 brew install go
 ```
 
-# Run
+# Build
 
 ## Run the main app
 ```go
- go get
- go run *.go
+go build
 ```
 
-### Test it
+# Run
 
-Make a post request with data containing project name after the slash in `github.com`, e.g. `github.com/cloudhubs/tms`,
-so `cloudhubs/tms` is what we are interested in.
+```go
+./main
+```
+
+# Files
+
+* main.go: main server
+* model.go: data structures
+* requests.go: validates number of requests per day
+* decode.go: decodes response
+* utilsHttp.go: makes http call to code analyzer
+* 
+
+## Main Endpoint
+
+Analyzing repository `https://github.com/cloudhubs/tms` by running:
 
 ```bash
 curl --request POST \
-  --url http://localhost:8080/ \
+  --url http://localhost:4000/ \
   --header 'content-type: application/json' \
   --data '{
-    "url":"cloudhubs/tms"
+    "repositories": [
+        {
+            "organization":"cloudhubs",
+            "repository":"tms",
+            "isMonolith":"true"
+        },
+    ]
 }'
 ```
 
-## Run the fake Prophet
-```go
-go run prophetserver.go model.go
+* validate number of requests per day
+* validate size of the repository < 100 MB
+* make call to:
+
+```bash
+curl --request POST \
+  --url http://localhost:5000/ \
+  --header 'content-type: application/json' \
+  --data '{
+    "repositories": [
+        {
+            "organization":"cloudhubs",
+            "repository":"tms",
+            "isMonolith":"true"
+        },
+    ]
+}'
 ```
+
+Error calls:
+
+* 403 if requests per day exhausted
+* 401 if repository size exceeds 100 MB
