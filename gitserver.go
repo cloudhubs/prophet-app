@@ -12,7 +12,6 @@ import (
 )
 
 var MaxRequests = 500
-
 var curr = 0
 var reqDate = time.Now()
 var currentTime = time.Now()
@@ -136,7 +135,7 @@ func getProphetResponse(w http.ResponseWriter, r *http.Request, request ProphetW
 			return callProphet(request)
 		} else {
 			//request exhausted
-			var errText string = "Resources exhausted, next available will be tomorrow"
+			var errText = "Resources exhausted, next available will be tomorrow"
 			logger(w, errText)
 			http.Error(w, errText, http.StatusBadRequest)
 		}
