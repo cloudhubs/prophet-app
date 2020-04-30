@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"github.com/rs/cors"
-	//_ "github.com/rs/cors"
 	"log"
 	"net/http"
 )
@@ -43,5 +42,8 @@ func main() {
 		Debug: true,
 	})
 	handler = c.Handler(handler)
-	http.ListenAndServe(":8080", handler)
+	err := http.ListenAndServe(":8080", handler)
+	if err != nil {
+		log.Println("Error starting server at 8080" + err.Error())
+	}
 }
