@@ -1,4 +1,4 @@
-package main
+package validation
 
 func checkRepoOrg() {
 
