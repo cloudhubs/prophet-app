@@ -1,14 +1,14 @@
-package app
+package main
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
-	"os"
 )
 
 var MaxRequests = 500
@@ -49,7 +49,7 @@ func createProphetRequest(arr []string, monoliths []bool) []byte {
 
 //ToDo ResponseWriter
 func cloneRepo(repo string){
-	cmd := exec.Command("/bin/sh", "-c", "cd " + tmpServerPath + "; git clone " + repo + ";")
+	cmd := exec.Command("/bin/sh", "-c", "cd " +tmpServerPath+ "; git clone " + repo + ";")
 	err := cmd.Run()
 	if err != nil {
 		// ToDo send error
