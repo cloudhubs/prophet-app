@@ -12,9 +12,9 @@ import (
 )
 
 var MaxRequests = 500
-var curr = 0
-var reqDate = time.Now()
-var currentTime = time.Now()
+//var curr = 0
+//var reqDate = time.Now()
+//var currentTime = time.Now()
 var format = "2006.01.02 15:04:05"
 var p = fmt.Fprintf
 var prophetAPIString = "http://127.0.0.1:8081/multirepoapp"
@@ -81,15 +81,15 @@ func getProphetAppData(r *http.Response) ProphetAppData{
 	return p
 }
 
-func marshalProphetAppData(p ProphetAppData) []byte {
+func marshalProphetAppData(p ProphetAppData) ([]byte, error) {
 	js, err := json.Marshal(p)
 	if err != nil {
 		//ToDo
 	}
-	return js
+	return js, err
 }
 
-func callProphet(request ProphetWebRequest) []byte {
+func callProphet(request ProphetWebRequest) ([]byte, error) {
 	//init array
 	var arr []string
 	var monoliths []bool
@@ -126,7 +126,7 @@ func logger(w http.ResponseWriter, str string) {
 }
 
 
-func getProphetResponse(w http.ResponseWriter, r *http.Request, request ProphetWebRequest) []byte {
+func getProphetResponse(w http.ResponseWriter, r *http.Request, request ProphetWebRequest) ([]byte, error) {
 	curr = curr + 1
 	currentTime = time.Now()
 	diff := currentTime.Sub(reqDate)
