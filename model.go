@@ -21,12 +21,12 @@ type ProphetAppRequest struct {
 
 type ProphetAppMultiRepoRequest struct {
 	Repositories []ProphetAppRequest `json:"repositories"`
-	SystemName string `json:"systemName"` ;
+	SystemName string                `json:"systemName"` ;
 }
 
 type ProphetAppData struct {
 	Global Global `json:"global"`
-	Ms []Ms `json:"ms"`
+	Ms     []Ms   `json:"ms"`
 }
 
 type Global struct {
