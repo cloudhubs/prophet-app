@@ -1,46 +1,45 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
-	"time"
 )
 
-func queryProphet() {
+func queryProphet(r http.Request, w http.ResponseWriter) {
+	// unmarshall
+	prophetAppData := unmarshallData(r)
 	// if check.resources OK
-
-	// if check.orgRepo OK
-
-	// make a query
-}
-
-var curr = 0
-var reqDate = time.Now()
-var currentTime = time.Now()
-
-func checkResources() bool{
-	curr = curr + 1
-	currentTime = time.Now()
-	diff := currentTime.Sub(reqDate)
-	if diff.Hours() < 24 {
-		if curr < MaxRequests {
-			return true
-		} else {
-			return false
-		}
+	cont, msg := checkCapacity()
+	if !cont {
+		sendForbidden(w, msg)
 	}
-	curr = 0
-	reqDate = time.Now()
-	return true
+	// if check.orgRepo OK
+	cont, msg = checkGit(org, repo)
+	if !cont {
+		sendNotFound(w, msg)
+	}
+	// make a query
+
+
 }
 
-func sendResourcesExhausted(w http.ResponseWriter){
-	var errText = "Resources exhausted, next available will be tomorrow"
-	logger(w, errText)
-	http.Error(w, errText, http.StatusBadRequest)
+func unmarshallData(r http.Request) (ProphetAppData, error) {
+	err := r.Body.Close()
+	if err != nil {
+		return ProphetAppData{}, err
+	}
+	var p ProphetAppData
+	json.NewDecoder(r.Body).Decode(&p)
+	return p
 }
 
-func sendRepoNotOK(w http.ResponseWriter, reason string){
-	var errText = "Error in repository: " + reason
-	logger(w, errText)
-	http.Error(w, errText, http.StatusBadRequest)
+
+func sendForbidden(w http.ResponseWriter, reason string){
+	logger(w, reason)
+	http.Error(w, reason, http.StatusForbidden)
+}
+
+func sendNotFound(w http.ResponseWriter, reason string){
+	logger(w, reason)
+	http.Error(w, reason, http.StatusNotFound)
 }
