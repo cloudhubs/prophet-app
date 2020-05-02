@@ -17,7 +17,6 @@ var MaxRequests = 500
 //var currentTime = time.Now()
 var format = "2006.01.02 15:04:05"
 var p = fmt.Fprintf
-var prophetAPIString = "http://127.0.0.1:8081/multirepoapp"
 var tmpServerPath = "/Users/svacina/tmp/"
 var githubUrl = "https://github.com/"
 
@@ -36,7 +35,7 @@ func createProphetRequest(arr []string, monoliths []bool) []byte {
 		r.IsMonolith = monoliths[i]
 		reqs = append(reqs, r)
 	}
-	var multi ProphetAppMultiRepoRequest
+	var multi WebAppReq
 	multi.Repositories = reqs
 	multi.SystemName = "default"
 	requestBody, err := json.Marshal(multi)
@@ -66,13 +65,7 @@ func deleteRepo(repo string){
 
 }
 
-func postProphetAPI(buffer *bytes.Buffer) *http.Response {
-	response , err := http.Post(prophetAPIString,"application/json", buffer)
-	if err != nil {
-		panic(err)
-	}
-	return response
-}
+
 
 func getProphetAppData(r *http.Response) ProphetAppData{
 	defer r.Body.Close()

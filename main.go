@@ -33,7 +33,7 @@ Main server function
  */
 func main() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", analyzeGit)
+	mux.HandleFunc("/", queryProphet)
 	handler := cors.Default().Handler(mux)
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:3000"},
