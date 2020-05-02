@@ -1,5 +1,6 @@
 package main
 
+//used
 type ProphetWebRequest struct {
 	Repositories []GitRepository `json:"repositories"`
 }
@@ -10,6 +11,7 @@ type GitRepository struct {
 	IsMonolith bool `json:"isMonolith"`
 }
 
+//deprecated
 type ProphetAppRequest struct {
 	Path string `json:"path"`
 	Cached bool `json:"cached"`
@@ -19,9 +21,9 @@ type ProphetAppRequest struct {
 	Communication bool `json:"communication"`
 }
 
-type ProphetAppMultiRepoRequest struct {
+type WebAppReq struct {
 	Repositories []ProphetAppRequest `json:"repositories"`
-	SystemName string                `json:"systemName"` ;
+	SystemName string                `json:"systemName"`
 }
 
 type ProphetAppData struct {

@@ -1,18 +1,18 @@
 package main
 
 import (
-	"bytes"
 	"net/http"
 )
 
 
-var mainGithubAPI = "http://github.com/api/"
+var orgRepoAPI = "http://api.github.com/repos/"
+var orgAPI = "http://api.github.com/orgs/"
 
 /**
 Fetch Organization to validate existence
 */
-func fetchOrg(buffer *bytes.Buffer) (*http.Response, error) {
-	response , err := http.Get(prophetAPI)
+func fetchOrg(org string) (*http.Response, error) {
+	response , err := http.Get(orgAPI + "/" + org)
 	return response, err
 }
 
@@ -20,7 +20,7 @@ func fetchOrg(buffer *bytes.Buffer) (*http.Response, error) {
 Fetch Repository from Organization to validate existence
  */
 func fetchOrgRepo(org string, repo string) (*http.Response, error) {
-	url := mainGithubAPI + org + "/" + repo
+	url := orgRepoAPI + org + "/" + repo
 	response , err := http.Get(url)
 	return response, err
 }
