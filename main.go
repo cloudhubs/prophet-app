@@ -1,32 +1,10 @@
 package main
 
 import (
-	"errors"
 	"github.com/rs/cors"
 	"log"
 	"net/http"
-	)
-
-
-func analyzeGit(w http.ResponseWriter, r *http.Request) {
-	log.Println("Analyzing...")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	var p ProphetWebRequest
-	err := decodeJSONBody(w, r, &p)
-	if err != nil {
-		var mr *malformedRequest
-		if errors.As(err, &mr) {
-			http.Error(w, mr.msg, mr.status)
-		} else {
-			log.Println(err.Error())
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		}
-		return
-	}
-	js, err := getProphetResponse(w,r,p)
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
-}
+)
 
 /**
 Main server function
