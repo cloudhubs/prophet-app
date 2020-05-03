@@ -1,6 +1,8 @@
 package main
 
-import time "time"
+import (
+	"time"
+)
 
 var curr = 0
 var reqDate = time.Now()
